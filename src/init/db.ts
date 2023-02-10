@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
-export default () => {
-  const mongoString = 'mongodb://localhost:27017/test';
+export default (url) => {
+  const mongoString = url;
 
   mongoose.connect(mongoString, {}, (error: any) => {
     if (error) {

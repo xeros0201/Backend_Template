@@ -1,22 +1,29 @@
-import { Request, Response } from 'express';
-import { transStrings } from '../../init/locales';
+import {   createJwtToken, createJwtTokenRF } from '../../helpers/createJwtToken';
+import { NextFunction, Request, Response } from 'express';
+ 
 import { User } from '../models';
-const jwt = require('jsonwebtoken');
+ 
+import { JwtPayload } from '../types/express';
+import { LOGIN_FAILED } from './message';
+import { IUser } from '../models/user.model';
+ 
+import { checkExist } from '../Service/auth/RegisterService';
+import { transStrings } from '../../constString/Register';
+import { upload_seals, upload_signs } from '@/helpers/createUpload';
+import   fs   from 'fs';
+ 
 const bcrypt = require('bcryptjs');
  
-const UserLogin = (req: Request | any, res: Response) => {
+const UserLogin = (req: Request | any, res: Response,next:NextFunction) => {
   return User.findOne({
-    email: req.body.mobile,
+    profile_code: req.body.profile_code,
   }).then(function (user: any, err: any) {
     if (err) throw err;
 
     if (!user) {
       res.status(403).json({
         success: false,
-        message: req.i18n.t('simpleStringWithVariable', {
-          variable1: '3',
-          variable2: '3',
-        }),
+        message: LOGIN_FAILED,
       });
     } else if (user) {
  
@@ -27,55 +34,97 @@ const UserLogin = (req: Request | any, res: Response) => {
             message: 'Ops! wrong Password!',
           });
         } else {
-          const payload = {
+          const payload : JwtPayload = {
             id: user._id,
-            role: 'user',
+            role:user.role ,
+            email:user.email,
+            first_name:user.first_name,
+            last_name:user.last_name
+            
           };
-          const token = jwt.sign(payload, process.env.JWT_KEY);
+          const accessToken = createJwtToken(payload);
+          const refreshToken = createJwtTokenRF(payload);
+          res.cookie('refreshToken',refreshToken,{
+            expires: new Date(Date.now() + 90000000),
+            sameSite:'none',
+            secure:true
+          })
           User.findById(user._id, function (err, result) {
+
+                const { password,...user} = result._doc
             res.status(200).send({
               success: true,
-              token: token,
+              accessToken: accessToken,
               user: {
-                id: result._id,
-                name: result.name,
-                email: result.email,
-                mobile: result.mobile,
+                  ...user,
+                   
+                
               },
-            });
+            });;
           });
         }
       });
     }
   });
 };
-const UserRegister = (req: Request | any, res: Response) => {
-  const user = new User({
-    name: req.body.name,
-    email: req.body.email,
-    mobile: req.body.mobile,
-    password: req.body.password,
-    created_at: new Date(),
+const UserRegister = async (req: Request | any, res: Response) => {
+
+
+
+  const {error,success} = await checkExist(req.body)
+ 
+  
+         
+    
+        
+  if(!success){
+    return  res.status(400).send(error) 
+  }
+    const user  = new User({
+    ...req.body,
+    password:"1",
+    seal_image:{
+      data: req.files.seal_image[0].buffer,
+      contentType: req.files.seal_image[0].mimetype
+    },
+    sign_image:{
+      data: req.files.sign_image[0].buffer,
+      contentType: req.files.sign_image[0].mimetype
+    } 
   });
 
-  return req.body?.name
+ 
+  return success
     ? user
         .save()
         .then(() => {
-          const payload = {
+          const payload : JwtPayload = {
             id: user._id,
-            roleL: 'user',
+            role:user.role ,
+            email:user.email,
+            first_name:user.first_name,
+            last_name:user.last_name
+            
           };
 
-          const signtoken = jwt.sign(payload, process.env.JWT_KEY);
+          const accessToken = createJwtToken(payload);
+          const refreshToken = createJwtTokenRF(payload);
+          res.cookie('refreshToken',refreshToken,{
+            expires: new Date(Date.now() + 90000000),
+            sameSite:'none',
+            secure:true
+          });
           res.status(200).send({
             success: true,
             message: req.t(transStrings.registeredsuccessfully, {
-              name: user.name,
+              first_name:user.first_name,
+              last_name:user.last_name
             }),
             user: user,
-            token: signtoken,
-          });
+            accessToken,
+          
+          })
+         
         })
         .catch(err => {
           console.log(err);
@@ -85,11 +134,11 @@ const UserRegister = (req: Request | any, res: Response) => {
             error: err,
           });
         })
-    : res.status(500).send({
-        success: false,
-        message: 'Check your data',
-        error: {},
-      });
+    :       res.status(400).send(error) ;
 };
+
+
+
+
 
 export { UserLogin, UserRegister };

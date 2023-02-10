@@ -1,0 +1,1 @@
+export const LOGIN_FAILED = "Tài khoản hoặc mật khẩu không đúng !"

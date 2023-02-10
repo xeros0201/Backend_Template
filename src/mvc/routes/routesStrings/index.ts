@@ -4,4 +4,6 @@ export const Routes = {
   register: '/register',
   profile: '/profile',
   update: '/update',
+  refresh:'/refresh',
+  avatar:'/avatar'
 };

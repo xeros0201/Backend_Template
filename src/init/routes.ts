@@ -4,6 +4,7 @@ import { authRouter, userRouter } from '../mvc/routes';
 import { Routes } from '../mvc/routes/routesStrings';
 
 export default (app: Express) => {
-  app.use('/', authRouter);
-  app.use(Routes.user, userRouter);
+  app.use('/v1', authRouter);
+  app.use('/v1'+Routes.user, userRouter);
+  //user
 };
