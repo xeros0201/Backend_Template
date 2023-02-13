@@ -1,9 +1,9 @@
-import { upload_avatars } from '../../helpers/createUpload';
+import { upload_avatars } from '../../../helpers/createUpload';
 import express from 'express';
-import { userController } from '../controllers';
-import { auth } from '../middlewares';
-import { Routes } from './routesStrings';
-import { checkJwt } from '../middlewares/auth/checkJwt';
+import { userController } from '../../controllers';
+import { auth } from '../../middlewares';
+import { Routes } from '../routesStrings';
+import { checkJwt } from '../../middlewares/auth/checkJwt';
 
 const router = express.Router();
 

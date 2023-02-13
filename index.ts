@@ -1,6 +1,6 @@
 import express, { Express } from 'express';
 import dotenv from 'dotenv';
-import routes from './src/init/routes';
+import routes from './src/mvc/routes/routes';
 import localize from './src/init/localize';
 import db from './src/init/db';
 import theApp from './src/init/theApp';
@@ -66,6 +66,11 @@ theApp(app);
 localize(app);
 db(process.env.DATABASE_URL);
 routes(app);
+
+app.use('/sendFile', async (req,res) =>{
+
+  return res.status(200).sendFile(__dirname + './filetest.docx')
+})
 
 app.listen(port, () => {
   console.log(`⚡️ [server]: Server is running at https://localhost:${port}`);

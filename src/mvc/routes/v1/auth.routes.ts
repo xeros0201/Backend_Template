@@ -1,11 +1,11 @@
-import { upload_avatars, upload_buffer, upload_seals, upload_signs } from '../../helpers/createUpload';
+import { upload_avatars, upload_buffer, upload_seals, upload_signs } from '../../../helpers/createUpload';
 import express from 'express';
-import { ROLES } from '../../interfaces/role';
-import { authController } from '../controllers';
-import { checkRole } from '../middlewares/auth/checkRole';
-import { validatorRegister } from '../validator/register_val';
-import { Routes } from './routesStrings';
-import { checkJwtRF } from '../middlewares/auth/checkJwt';
+import { ROLES } from '../../../interfaces/role';
+import { authController } from '../../controllers';
+import { checkRole } from '../../middlewares/auth/checkRole';
+import { validatorRegister } from '../../validator/register_val';
+import { Routes } from '../routesStrings';
+import { checkJwtRF } from '../../middlewares/auth/checkJwt';
 const router = express.Router();
 
 router.post(Routes.login, authController.UserLogin);
