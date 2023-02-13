@@ -40,8 +40,7 @@ export const checkJwt =   (req: Request, res: Response, next: NextFunction) => {
 
 export const checkJwtRF = (req: Request, res: Response, next: NextFunction) => {
 
-  console.log(req.cookies)
-  console.log(req.headers.cookie)
+ 
   const authHeader = req.get('refreshToken');
   if (!authHeader) {
     const customError = new CustomError(400, 'General', 'Authorization header not provided');
@@ -65,15 +64,12 @@ export const checkJwtRF = (req: Request, res: Response, next: NextFunction) => {
     const newAccessToken = createJwtToken(jwtPayload as JwtPayload);
     res.setHeader('accessToken', `Bearer ${newAccessToken}`);
     res.setHeader('refreshToken', `Bearer ${newRefreshToken}`);
-    res.clearCookie("refreshToken")
+   
  
-    res.cookie('refreshToken',newRefreshToken,{
-      expires: new Date(Date.now() + 90000000),
-      sameSite:'none',
-      secure:true
-    })
+  
     return res.status(200).json({success:true,
-      newAccessToken:req.headers.cookie,
+     accessToken: newAccessToken,
+     refreshToken:newRefreshToken
 
     })
   } catch (err) {

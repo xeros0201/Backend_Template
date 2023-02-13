@@ -44,17 +44,14 @@ const UserLogin = (req: Request | any, res: Response,next:NextFunction) => {
           };
           const accessToken = createJwtToken(payload);
           const refreshToken = createJwtTokenRF(payload);
-          res.cookie('refreshToken',refreshToken,{
-            expires: new Date(Date.now() + 90000000),
-            sameSite:'none',
-            secure:true
-          })
+      
           User.findById(user._id, function (err, result) {
 
                 const { password,...user} = result._doc
             res.status(200).send({
               success: true,
-              accessToken: accessToken,
+              accessToken,
+              refreshToken,
               user: {
                   ...user,
                    
@@ -109,11 +106,7 @@ const UserRegister = async (req: Request | any, res: Response) => {
 
           const accessToken = createJwtToken(payload);
           const refreshToken = createJwtTokenRF(payload);
-          res.cookie('refreshToken',refreshToken,{
-            expires: new Date(Date.now() + 90000000),
-            sameSite:'none',
-            secure:true
-          });
+    
           res.status(200).send({
             success: true,
             message: req.t(transStrings.registeredsuccessfully, {
@@ -122,6 +115,7 @@ const UserRegister = async (req: Request | any, res: Response) => {
             }),
             user: user,
             accessToken,
+            refreshToken,
           
           })
          
