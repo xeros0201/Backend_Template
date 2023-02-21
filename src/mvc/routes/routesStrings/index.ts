@@ -5,5 +5,7 @@ export const Routes = {
   profile: '/profile',
   update: '/update',
   refresh:'/refresh',
-  avatar:'/avatar'
+  avatar:'/avatar',
+  update_password:"/update_password",
+  admin_update:"/admin_update"
 };

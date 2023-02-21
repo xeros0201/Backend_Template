@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import { ISchemaType } from '@/interfaces/interface';
 import { CreateSchema } from '../../helpers/createSchema';
 import { Role } from '../../interfaces/role';
+import { IDepartment } from './department.model';
  
  
  export interface IUser {
@@ -18,7 +19,7 @@ import { Role } from '../../interfaces/role';
   address: string  
   profile_code: string  
   status:"online"|"offline"
-  department:string
+  department: IDepartment | string | any,
   role:Role,
   avatar:string
 
@@ -30,8 +31,8 @@ import { Role } from '../../interfaces/role';
   workday:number
 
   office_branch: string
-  sign_image:Buffer,
-  seal_image:Buffer,
+  sign_image:string,
+  seal_image:string,
  }
 
 const bcrypt = require('bcryptjs');
@@ -61,15 +62,8 @@ const schema  = CreateSchema({
   salary:{type:Number},
   workday:{type:Number},
   office_branch:{type:String},
-  sign_image:{ 
-    data: Buffer, 
-    contentType: String 
-  },
-  seal_image:{ 
-
-    data: Buffer, 
-    contentType: String 
-  },
+  sign_image:{ type:String    },
+  seal_image:{ type:String    },
 
  });
 
@@ -83,4 +77,6 @@ schema.pre('save', function (next) {
   }
 });
 
-  module.exports = mongoose.model('users', schema)  ;
+ 
+ 
+    export const    User =     mongoose.model('users', schema)

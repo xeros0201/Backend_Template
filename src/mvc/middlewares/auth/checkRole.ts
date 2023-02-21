@@ -1,5 +1,5 @@
 import { Role } from '@/interfaces/role';
-import { CustomError } from '@/mvc/response/custom-error/CustomError';
+import { CustomError } from '../../../mvc/response/custom-error/CustomError';
 import { Request, Response, NextFunction } from 'express';
 
  
@@ -9,7 +9,7 @@ import { Request, Response, NextFunction } from 'express';
 export const checkRole = (roles: Role[], isSelfAllowed = false) => {
   return async (req: any, res: Response, next: NextFunction) => {
     const { id, role }  = req.user;
-    const { id: requestId } = req.params;
+    const { id: requestId } = req.query;
 
     let errorSelfAllowed: string | null = null;
     if (isSelfAllowed) {

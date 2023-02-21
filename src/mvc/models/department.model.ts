@@ -4,11 +4,15 @@ import mongoose from 'mongoose';
 import { CreateSchema } from '../../helpers/createSchema';
  
 
- 
+export interface IDepartment {
+  _id:any |string
+  name: string ,
+  code: string ,
+ }
 
 const schema = CreateSchema({
-  name:{ type:String },
-  code:{type:String},
+  name: String ,
+  code: String ,
         
  
  });

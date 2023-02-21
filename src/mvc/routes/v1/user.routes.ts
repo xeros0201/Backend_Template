@@ -1,17 +1,15 @@
-import { upload_avatars } from '../../../helpers/createUpload';
+ 
 import express from 'express';
 import { userController } from '../../controllers';
-import { auth } from '../../middlewares';
+ 
 import { Routes } from '../routesStrings';
 import { checkJwt } from '../../middlewares/auth/checkJwt';
+import { checkRole } from '../../../mvc/middlewares/auth/checkRole';
 
 const router = express.Router();
 
-router.get(Routes.profile, [checkJwt], userController.UserProfile);
-router.post(Routes.update, [checkJwt], userController.UserUpdate);
-router.post(Routes.avatar,[ 
-  checkJwt,
-  upload_avatars.single('avatar')
-  // ,checkRole([ROLES.SUPER_ADMIN])
-], userController.UserAvatar);
+router.get(Routes.profile, [checkJwt("token"),checkRole([],true)], userController.UserProfile);
+router.post(Routes.update, [checkJwt("token")], userController.UserUpdate);
+router.post(Routes.update_password, [checkJwt("token")], userController.UserUpdatePassowrd);
+router.post(Routes.admin_update, [checkJwt("token"),checkRole(["SUPER_ADMIN"],false)], userController.AdminUpdate);
 export default router;

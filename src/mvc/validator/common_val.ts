@@ -7,44 +7,50 @@ import { CustomError } from '../response/custom-error/CustomError';
 import { ErrorValidation } from '../response/custom-error/types';
 
 
-const createTextRes = (key:string) => `${key.toUpperCase} không hợp lệ !!`
-export const validatorRegister = (req: Request, res: Response, next: NextFunction,valKey:any[]) => {
-  let  valObject:Object  = req.body;
-  const errorsValidation: ErrorValidation[] = [];
+const createTextRes = (key:string) => `${key} không hợp lệ !!`
+export const validatorCommon = (valKey:any[]) => {
+
   
-  _.forEach(valObject,(val,key:never)=>{
-     if(valKey.indexOf(key)===-1){
-      return
-      } 
-      let checkVal:any = !val ? "": val
+
+    return  (req: Request, res: Response, next: NextFunction) =>{
+
+     
+      let  valObject:Object  = req.body;
+ 
+      const errorsValidation: ErrorValidation[] = [];
+      
+      
+      valKey.map((key)=>{
 
 
-      if(key==="password"&&
-      validator.isLength(checkVal.trim(),{min:8,max:30})&& 
-      validator.isEmpty(checkVal.trim())){
-      return errorsValidation.push({ [key]: createTextRes(key) });
-      }
-      if(key==="email"&&
-      validator.isEmail(checkVal.trim())&& 
-      validator.isEmpty(checkVal.trim())){
-      return errorsValidation.push({ [key]: createTextRes(key) });
-      }
-      if(
-      validator.isEmail(checkVal.trim()) 
-      ){
-      return errorsValidation.push({ [key]: createTextRes(key)});
-      }
-    
+        if(!valObject[key]) return errorsValidation.push({ [key]: createTextRes(key) }) 
+        if(key==="password"&&
+        validator.isLength(valObject[key].trim(),{min:8,max:30})&& 
+        validator.isEmpty(valObject[key].trim())){
+        return errorsValidation.push({ [key]: createTextRes(key) });
+        }
+        if(key==="email" ){
+
         
-    
-    
-  
-  })
-    
+           if( !validator.isEmail(valObject[key].trim())) return errorsValidation.push({ [key]: createTextRes(key) })
+           if(  validator.isEmpty(valObject[key].trim())) return errorsValidation.push({ [key]: createTextRes(key) });
+           return 
+        }
+        if(
+        validator.isEmpty(valObject[key].trim()) 
+        ){
+        return errorsValidation.push({ [key]: createTextRes(key)});
+        }
 
-  if (errorsValidation.length !== 0) {
-    const customError = new CustomError(400, 'Validation', 'Register validation error', null, null, errorsValidation);
-    return res.status(500).send(customError);
-  }
-  return next();
+      })
+
+
+    
+     
+      if (errorsValidation.length !== 0) {
+        const customError = new CustomError(400, 'Validation', 'Register validation error', null, null, errorsValidation);
+        return res.status(500).send(customError);
+      }
+      return next();
+    }
 };

@@ -8,13 +8,18 @@ import bodyParser from 'body-parser';
  
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import path from 'path';
+import  fs from 'fs'
+import path, { resolve } from 'path';
 import helmet from 'helmet';
+import { Request, Response } from 'express-serve-static-core';
+import { checkDepartmentMediaAndFiles } from './src/mvc/middlewares/auth/checkDepartment';
+import { checkJwt, checkJwtMedia } from './src/mvc/middlewares/auth/checkJwt';
 dotenv.config();
 const port = process.env.PORT || 4000;
 const app: Express = express();
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.json());
+
+app.use(express.urlencoded({ extended: true }));
 // const corsOptions = {
 //   
 // };
@@ -32,7 +37,57 @@ app.use(cors({
 }));
 app.use(cookieParser());
  
-app.use('/static', express.static(__dirname + '/uploads/avatars'));
+app.use('/static', express.static(__dirname + '/uploads/avatar'));
+
+app.use('/private',[function (req:Request, res:Response, next){
+ 
+  if(!req.query.token){
+    return res.status(500).json({message:"damnnn"})
+  }
+ 
+  next()
+} , express.static(__dirname + '/uploads/sing')]);
+app.use('/private',[function (req:Request, res:Response, next){
+ 
+  if(!req.query.token){
+    return res.status(500).json({message:"damnnn"})
+  }
+ 
+  next()
+} , express.static(__dirname + '/uploads/seal')]);
+
+app.use('/private_files/:department/:filename',[ 
+  // checkJwtMedia("token") ,
+  // checkDepartmentMediaAndFiles() , 
+ 
+  ], function (req,res){
+      return res.sendFile( path.join(__dirname,`/files/${req.params.department}/${req.params.filename}`))
+  });
+
+  app.use('/private_media/:department/:filename',[ 
+    // checkJwtMedia("token") ,
+    // checkDepartmentMediaAndFiles() , 
+   
+    ], function (req,res){
+        return res.sendFile( path.join(__dirname,`/media/${req.params.department}/${req.params.filename}`))
+    });  
+
+app.get('/files', [checkJwt("token")]  ,(req, res) => {
+    try {
+            const { } = req.query
+        const basePath = path.join(__dirname, 'uploads');
+      const files =   fs.readdirSync(basePath, 
+          { withFileTypes: true })
+         
+        res.send(files);
+    } catch(e) {
+ 
+        console.log(e);
+        res.sendStatus(500);
+    }
+});
+
+
 app.use('/gz', express.static(__dirname + '/uploads/unity/',{
   setHeaders: function (res){
     res.set("Content-Encoding", "gzip");
@@ -67,10 +122,7 @@ localize(app);
 db(process.env.DATABASE_URL);
 routes(app);
 
-app.use('/sendFile', async (req,res) =>{
-
-  return res.status(200).sendFile(__dirname + './filetest.docx')
-})
+ 
 
 app.listen(port, () => {
   console.log(`⚡️ [server]: Server is running at https://localhost:${port}`);
