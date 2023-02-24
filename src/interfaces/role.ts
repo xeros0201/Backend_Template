@@ -6,7 +6,7 @@ interface IRoles {
   STAFF: string
   HEAD_OFFICE: string
 }
-export type Role = 'ADMIN' | 'SUPER_ADMIN'|"STAFF"|"HEAD_OFFICE";
+export type Role = 'ADMIN' | 'SUPER_ADMIN'|"CLIENT";
 
 
  

@@ -32,6 +32,8 @@
   "homepage": "https://github.com/NourAliAbdou/express-typescript-mongoose-boilerplate#readme",
   "description": "",
   "dependencies": {
+    "@node-redis/client": "^1.0.6",
+    "@types/http-errors": "^2.0.1",
     "@types/jsonwebtoken": "^8.5.1",
     "@types/lodash": "^4.14.191",
     "@types/multer": "^1.4.7",
@@ -40,6 +42,7 @@
     "body-parser": "^1.20.1",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
+    "crypto": "^1.0.1",
     "dotenv": "^16.0.3",
     "eslint": "^8.28.0",
     "eslint-config-prettier": "^8.5.0",
@@ -59,6 +62,7 @@
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
     "prettier": "2.7.1",
+    "redis": "^4.6.4",
     "source-map-support": "^0.5.21",
     "validator": "^13.9.0"
   },
@@ -75,7 +79,7 @@
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
     "tsc-alias": "^1.8.1",
-    "tsconfig-paths": "^4.1.1",
+    "tsconfig-paths": "^4.1.2",
     "typescript": "^4.9.3"
   },
   "jest": {

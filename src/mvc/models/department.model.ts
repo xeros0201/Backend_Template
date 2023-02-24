@@ -10,7 +10,7 @@ export interface IDepartment {
   code: string ,
  }
 
-const schema = CreateSchema({
+const {schem } = CreateSchema({
   name: String ,
   code: String ,
         
@@ -19,4 +19,4 @@ const schema = CreateSchema({
 
  
 
-module.exports = mongoose.model('departments', schema);
+module.exports = mongoose.model('departments', schem);

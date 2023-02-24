@@ -13,6 +13,8 @@ import { transStrings } from '../../constString/Register';
 import   fs   from 'fs';
 import _ from 'lodash';
 import { dirname } from 'path';
+import createHttpError from 'http-errors';
+import { client } from '@/helpers/createRedisConn';
  
 const bcrypt = require('bcryptjs');
  
@@ -24,30 +26,17 @@ const UserLogin = async (req: Request | any, res: Response,next:NextFunction) =>
 
 
   const userLogin  =  await User.findOne({
-    profile_code: req.body.profile_code,
+    email: req.body.email,
   })
   
-   if(!userLogin) return  res.status(403).json({
-              success: false,
-              message: 'Đăng nhập thất bại',
-            });
-            bcrypt.compare(req.body.password, userLogin.password, function (err, compRes) {
+   if(!userLogin) return  next( new createHttpError.BadRequest('User not found !')) ;
+bcrypt.compare(req.body.password, userLogin.password, async function (err, compRes) {
               if (!compRes) {
-                res.status(403).json({
-                  success: false,
-                  message: 'Đăng nhập thất bại, sai mật khẩu hoặc tài khoản !',
-                });
+                next( new createHttpError.Unauthorized('Username or password incorrect !'));
               } else {
-                const payload : JwtPayload = {
-                  id: userLogin._id,
-                  role:userLogin.role ,
-                  email:userLogin.email,
-                  first_name:userLogin.first_name,
-                  last_name:userLogin.last_name
-                  
-                };
-                const accessToken = createJwtToken(payload);
-                const refreshToken = createJwtTokenRF(payload);
+        
+                const accessToken = await createJwtToken(userLogin);
+                const refreshToken = await createJwtTokenRF(userLogin);
                 
                 const { password,...user} = userLogin._doc
               return  res.status(200).send({
@@ -66,66 +55,67 @@ const UserLogin = async (req: Request | any, res: Response,next:NextFunction) =>
 
  
 };
-const UserRegister = async (req: Request | any, res: Response) => {
-
-
-
-  
-       
-      
+const   UserRegister = async (req: Request | any, res: Response) => {
+  try {
+    const user  =  await new User({
+      ...req.body,
    
-          
    
-    const user  = new User({
-    ...req.body,
-    password:"1",
-    // avatar:`/static/${req.files.filename}`,
-    // seal_image:`/private/${req.file.filename}`,
-    // sign_image:`/private/${req.file.filename}`
-  });
+    });
+    await user.save()
+    const accessToken = await createJwtToken(user._doc);
+    console.log({accessToken})
+    const refreshToken = await createJwtTokenRF(user._doc);
+ 
+    console.log({refreshToken})
 
-  
-  return res.status(200).json(user)   
-        // .save()
-        // .then(() => {
-        //   const payload : JwtPayload = {
-        //     id: user._id,
-        //     role:user.role ,
-        //     email:user.email,
-        //     first_name:user.first_name,
-        //     last_name:user.last_name
-            
-        //   };
-
-        //   const accessToken = createJwtToken(payload);
-        //   const refreshToken = createJwtTokenRF(payload);
+   return res.status(200).send({
+      success: true,
+      message: req.t(transStrings.registeredsuccessfully, {
+      name:user.name
+      }),
+      user: user,
+      accessToken,
+      refreshToken,
     
-        //   res.status(200).send({
-        //     success: true,
-        //     message: req.t(transStrings.registeredsuccessfully, {
-        //       first_name:user.first_name,
-        //       last_name:user.last_name
-        //     }),
-        //     user: user,
-        //     accessToken,
-        //     refreshToken,
-          
-        //   })
-         
-        // })
-        // .catch(err => {
-        //   console.log(err);
-        //   res.status(400).send({
-        //     success: false,
-        //     message: req.t(transStrings.useralreadyexists),
-        //     error: err,
-        //   });
-        // })
+    })
+  } catch (error) {
+    console.log(error);
+    res.status(400).send({
+      success: false,
+      message: req.t(transStrings.useralreadyexists),
+      error: error,
+    });
+  }
+ 
+};
+
+const UserLogout = async (req: Request | any, res: Response,next:NextFunction) => {
+
+
+
+ 
+
+  const userLogin  =  await User.findOne({
+    email: req.user.email,
+  })
+  
+   if(!userLogin) return  next( new createHttpError.BadRequest('User not found !')) ;
+
+  try{
+      client.del(userLogin._id.toString())
+      return res.json({
+        message:"Logout !"
+      })
+  }catch(e){
+    console.log(e)
+    return  next( new createHttpError.BadRequest('..!')) ;
+  }
+
+
  
 };
 
 
 
-
-
-export { UserLogin, UserRegister };
+export { UserLogin, UserRegister,UserLogout };

@@ -2,7 +2,7 @@ import express, { Express } from 'express';
 import dotenv from 'dotenv';
 import routes from './src/mvc/routes/routes';
 import localize from './src/init/localize';
-import db from './src/init/db';
+ 
 import theApp from './src/init/theApp';
 import bodyParser from 'body-parser';
  
@@ -14,6 +14,9 @@ import helmet from 'helmet';
 import { Request, Response } from 'express-serve-static-core';
 import { checkDepartmentMediaAndFiles } from './src/mvc/middlewares/auth/checkDepartment';
 import { checkJwt, checkJwtMedia } from './src/mvc/middlewares/auth/checkJwt';
+import createHttpError from 'http-errors';
+
+import './src/helpers/createRedisConn'
 dotenv.config();
 const port = process.env.PORT || 4000;
 const app: Express = express();
@@ -119,7 +122,7 @@ app.use('/js', express.static(__dirname + '/uploads/unity/',{
 }));
 theApp(app);
 localize(app);
-db(process.env.DATABASE_URL);
+ 
 routes(app);
 
  
@@ -127,4 +130,19 @@ routes(app);
 app.listen(port, () => {
   console.log(`⚡️ [server]: Server is running at https://localhost:${port}`);
 });
+
+
+app.use((req,res,next)=>{
+
+
+  next(createHttpError.NotFound("Not found"))
+})
+
+app.use((err,req,res,next)=>{
+  res.json({
+    status: err.status || 500,
+    message: err.message,
+    err
+  })
+})
 export default app;

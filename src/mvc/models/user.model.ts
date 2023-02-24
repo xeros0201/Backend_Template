@@ -1,82 +1,48 @@
 import mongoose from 'mongoose';
-import { ISchemaType } from '@/interfaces/interface';
+ 
 import { CreateSchema } from '../../helpers/createSchema';
 import { Role } from '../../interfaces/role';
-import { IDepartment } from './department.model';
+ 
+import { connPrimary, connTest } from '@/init/db';
+import { checkPw, requiredValidation, hashPw, enumValidation, createStringField, createEnumField, createRefField } from './dbUltities';
  
  
  export interface IUser {
   _id:any
-  first_name:  string   
-  last_name:    string  
+  username:  string   
+   name:    string  
   email:  string  
   phone:  string  
   password: string  
-  nation: string  
-  district_id: string  
-  ward_id: string  
-  city_id: string  
-  address: string  
-  profile_code: string  
-  status:"online"|"offline"
-  department: IDepartment | string | any,
   role:Role,
-  avatar:string
-
-  card_owner:string
-  card_number:string
-  bank_name:string
-  bank_branch:string
-  salary:Number
-  workday:number
-
-  office_branch: string
-  sign_image:string,
-  seal_image:string,
+  address:string
  }
 
-const bcrypt = require('bcryptjs');
-const saltRounds = 10;
-const user_role :Role[] =["ADMIN",'HEAD_OFFICE','STAFF','SUPER_ADMIN'] 
-const schema  = CreateSchema({
-  first_name: { type: String },
-  last_name: { type: String },
-  email: { type: String ,lowercase: true },
-  phone: { type: String  },
-  password: { type: String },
-  nation:{ type: String},
-  district_id:{type: String},
-  ward_id:{type: String},
-  city_id:{type: String},
-  address:{type:String},
-  profile_code:{type:String},
-  status:{ type:String, enum:["online","offline"], default:"offline" },
-  // department:{ type:mongoose.Schema.Types.ObjectId ,ref:"departments" },
-  role:{ type:String, enum:user_role },
-  avatar:{ type:String    },
+ 
+const user_role :Role[] =["ADMIN",'SUPER_ADMIN','CLIENT'] 
+const{ schem ,schemTest } = CreateSchema({
 
-  card_owner:{type:String},
-  card_number:{type:String},
-  bank_name:{type:String},
-  bank_branch:{type:String},
-  salary:{type:Number},
-  workday:{type:Number},
-  office_branch:{type:String},
-  sign_image:{ type:String    },
-  seal_image:{ type:String    },
+  username:createStringField(8,20,true,{unique:true}),
+  name:createStringField(6,20,true),
+  email:createStringField(8,30,true,{unique:true}),
+  password:createStringField(8,30,true,),
+  role:createEnumField(user_role,user_role[2]),
+ 
+  address:createStringField(8,30),
+  phone:createStringField(9,20,true,{unique:true}),
+
+  bills:createRefField('Bill',true),
+
+ 
 
  });
 
-schema.pre('save', function (next) {
-  if (!this.isModified('password')) return next();
-  if (this.password) {
-    this.password = bcrypt.hashSync(this.password, saltRounds);
-    next();
-  } else {
-    next();
-  }
-});
+ schem.pre('save', hashPw)
 
+ schemTest.pre('save', hashPw)
  
- 
-    export const    User =     mongoose.model('users', schema)
+ schem.methods.isCheckPw = checkPw
+ schemTest.methods.isCheckPw = checkPw
+export const    User =     connPrimary.model('users', schem)
+export const    UserTest =     connTest.model('users', schemTest)
+

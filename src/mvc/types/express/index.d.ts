@@ -4,9 +4,9 @@ import { Role } from '@/interfaces/role';
 import { IUser } from '@/mvc/models/user.model';
  
 export type JwtPayload = {
-  id: number;
-  first_name: string,
-  last_name:string,
+  id: string;
+  name: string,
+ 
   email: string;
   role: Role;
  

@@ -2,14 +2,15 @@
 import express from 'express';
 import { userController } from '../../controllers';
  
-import { Routes } from '../routesStrings';
+import { userString } from '../routesStrings/userString';
 import { checkJwt } from '../../middlewares/auth/checkJwt';
 import { checkRole } from '../../../mvc/middlewares/auth/checkRole';
+import { tokenString } from '../routesStrings/authString';
 
 const router = express.Router();
 
-router.get(Routes.profile, [checkJwt("token"),checkRole([],true)], userController.UserProfile);
-router.post(Routes.update, [checkJwt("token")], userController.UserUpdate);
-router.post(Routes.update_password, [checkJwt("token")], userController.UserUpdatePassowrd);
-router.post(Routes.admin_update, [checkJwt("token"),checkRole(["SUPER_ADMIN"],false)], userController.AdminUpdate);
+router.get(userString.profile, [checkJwt(tokenString),checkRole([],true)], userController.UserProfile);
+router.post(userString.update, [checkJwt(tokenString)], userController.UserUpdate);
+router.post(userString.update_password, [checkJwt(tokenString)], userController.UserUpdatePassowrd);
+router.post(userString.admin_update, [checkJwt(tokenString),checkRole(["SUPER_ADMIN"],false)], userController.AdminUpdate);
 export default router;

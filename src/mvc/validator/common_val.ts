@@ -14,7 +14,6 @@ export const validatorCommon = (valKey:any[]) => {
 
     return  (req: Request, res: Response, next: NextFunction) =>{
 
-     
       let  valObject:Object  = req.body;
  
       const errorsValidation: ErrorValidation[] = [];
@@ -48,8 +47,8 @@ export const validatorCommon = (valKey:any[]) => {
     
      
       if (errorsValidation.length !== 0) {
-        const customError = new CustomError(400, 'Validation', 'Register validation error', null, null, errorsValidation);
-        return res.status(500).send(customError);
+        const customError =   new CustomError(400, 'Validation', 'Register validation error', null, null, errorsValidation);
+        return next(customError);
       }
       return next();
     }

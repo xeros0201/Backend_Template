@@ -23,7 +23,7 @@ const UserProfile = (req: Request | any, res: Response) => {
 const UserUpdate = async (req: Request | any, res: Response) => {
   const user_id =   req.jwtPayload.id;
   
-  const { _id,email,card_number,card_owner,bank_branch,office_branch,profile_code,role,salary,department,workday ,password,bank_name,...info }:IUser = req.body;
+  const { _id,email,...info }:IUser = req.body;
 
   const user = await User.findOneAndUpdate({ _id: user_id }, { $set: info }, { new: true });
 

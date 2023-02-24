@@ -4,40 +4,35 @@ import { ROLES } from '../../../interfaces/role';
 import { authController } from '../../controllers';
 import { checkRole } from '../../middlewares/auth/checkRole';
  
-import { Routes } from '../routesStrings';
+ 
 import { checkJwtRF } from '../../middlewares/auth/checkJwt';
  
 import { checkExist } from '../../Service/auth/checkExist';
 import { validatorCommon } from '../../../mvc/validator/common_val';
 import { checkReq } from '../../../mvc/validator/checkingReq';
+import { authString } from '../routesStrings/authString';
+import { User } from '@/mvc/models/user.model';
+ 
  
 const router = express.Router();
 let userValidation = [
   "email",
-,"first_name"
-,"last_name"
-,"role"
-,"profile_code"
-,"department"
-,"office_branch"
-,"card_owner"
-,"card_number"
-,"bank_name"
-,"bank_branch"
-,"salary"
-,"workday"
+ "name",
+ "phone",
+ "password"
 ]
-router.post(Routes.login, authController.UserLogin);
-router.post(Routes.register,[  upload.fields([
-  {name:"avatar",maxCount:1},
-  {name:"sign_image", maxCount:1},
-  {name:"seal_image", maxCount:1}
-]), validatorCommon(userValidation) ,checkExist(["email","phone","profile_code","card_number"]),
+router.post(authString.login, authController.UserLogin);
+router.post(authString.register, [validatorCommon(userValidation) ,checkExist(["email","phone","name","password"],User),
   
   // ,checkRole([ROLES.SUPER_ADMIN])
 ], authController.UserRegister);
+router.post(authString.logout, 
+  checkJwtRF("refreshToken"),
+  authController.UserLogout
+  // ,checkRole(["ADMIN","SUPER_ADMIN"])
+ );
 
-router.get(Routes.refresh, 
+router.get(authString.refresh, 
   checkJwtRF("refreshToken")
   // ,checkRole(["ADMIN","SUPER_ADMIN"])
  );
